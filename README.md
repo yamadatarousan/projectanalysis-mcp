@@ -171,6 +171,57 @@ Analyze this TypeScript project for me:
 - Generate a component diagram
 ```
 
+## 💬 日本語でのプロンプト例
+
+### 基本的なプロジェクト分析
+```
+プロジェクトを分析してください:
+/Users/user/Development/my-project
+```
+
+### 詳細な構造理解
+```
+このプロジェクトの構造を分析して、以下を教えてください:
+/Users/user/Development/nextjs-app
+
+- 主要な技術スタック
+- プロジェクトの規模感
+- ファイル構成の特徴
+```
+
+### 複数プロジェクトの比較
+```
+以下の2つのプロジェクトを分析して比較してください:
+1. /Users/user/Development/project-a
+2. /Users/user/Development/project-b
+
+どちらがより大規模で、技術的な違いは何ですか？
+```
+
+### コードレビュー準備
+```
+レビューするプロジェクトの概要を把握したいです:
+/Users/user/Development/review-target
+
+ファイル種別と規模感を教えてください
+```
+
+### 技術選定の参考
+```
+既存プロジェクトの技術構成を調べてください:
+/Users/user/Development/reference-project
+
+新しいプロジェクトの参考にしたいです
+```
+
+### 学習用プロジェクト理解
+```
+このオープンソースプロジェクトの構造を理解したいです:
+/Users/user/Development/open-source-project
+
+どんな技術で作られているか、全体像を教えてください
+```
+
 ## 🏗 Architecture
 
 The server follows a layered architecture with pluggable analyzers:
