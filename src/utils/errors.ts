@@ -168,40 +168,32 @@ export class ResourceError extends BaseError {
 }
 
 export class ResourceLimitError extends ResourceError {
-  readonly code = 'RESOURCE_LIMIT_EXCEEDED';
-  readonly statusCode = 429;
+  override readonly code = 'RESOURCE_LIMIT_EXCEEDED';
+  override readonly statusCode = 429;
 
   constructor(limitType: string, limit: number, actual: number) {
-    super(`${limitType} limit exceeded: ${actual} > ${limit}`, {
-      limitType,
-      limit,
-      actual
-    });
+    super(`${limitType} limit exceeded: ${actual} > ${limit}`);
+    (this as any).details = { limitType, limit, actual };
   }
 }
 
 export class TimeoutError extends ResourceError {
-  readonly code = 'TIMEOUT';
-  readonly statusCode = 408;
+  override readonly code = 'TIMEOUT';
+  override readonly statusCode = 408;
 
   constructor(operation: string, timeout: number) {
-    super(`Operation timed out: ${operation} (${timeout}ms)`, {
-      operation,
-      timeout
-    });
+    super(`Operation timed out: ${operation} (${timeout}ms)`);
+    (this as any).details = { operation, timeout };
   }
 }
 
 export class MemoryError extends ResourceError {
-  readonly code = 'MEMORY_ERROR';
-  readonly statusCode = 507;
+  override readonly code = 'MEMORY_ERROR';
+  override readonly statusCode = 507;
 
   constructor(operation: string, memoryUsed: number, memoryLimit: number) {
-    super(`Memory limit exceeded during ${operation}: ${memoryUsed}MB > ${memoryLimit}MB`, {
-      operation,
-      memoryUsed,
-      memoryLimit
-    });
+    super(`Memory limit exceeded during ${operation}: ${memoryUsed}MB > ${memoryLimit}MB`);
+    (this as any).details = { operation, memoryUsed, memoryLimit };
   }
 }
 
@@ -226,8 +218,8 @@ export class MCPError extends BaseError {
 }
 
 export class ToolNotFoundError extends MCPError {
-  readonly code = 'TOOL_NOT_FOUND';
-  readonly statusCode = 404;
+  override readonly code = 'TOOL_NOT_FOUND';
+  override readonly statusCode = 404;
 
   constructor(toolName: string) {
     super(`Tool not found: ${toolName}`, undefined, toolName);
@@ -235,13 +227,13 @@ export class ToolNotFoundError extends MCPError {
 }
 
 export class ToolExecutionError extends MCPError {
-  readonly code = 'TOOL_EXECUTION_ERROR';
-  readonly statusCode = 500;
+  override readonly code = 'TOOL_EXECUTION_ERROR';
+  override readonly statusCode = 500;
 
   constructor(toolName: string, cause?: Error) {
     super(`Tool execution failed: ${toolName}`, undefined, toolName);
     if (cause) {
-      this.details = { ...this.details, cause: cause.message, stack: cause.stack };
+      (this as any).details = { ...this.details, cause: cause.message, stack: cause.stack };
     }
   }
 }

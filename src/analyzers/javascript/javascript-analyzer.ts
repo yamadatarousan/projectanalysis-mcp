@@ -6,7 +6,8 @@ import path from 'path';
 import Parser from 'tree-sitter';
 import { BaseLanguageAnalyzer } from '../base/analyzer-base.js';
 import { TreeSitterParser } from './tree-sitter-parser.js';
-import { createFileUtils, type IFileUtils } from '@/utils/file-utils.js';
+import { getLogger } from '@/utils/logger.js';
+import type { IFileUtils } from '@/utils/file-utils.js';
 import type {
   IDependency,
   IComplexityMetrics,
@@ -16,15 +17,16 @@ import type {
 } from '@/types/index.js';
 
 export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
-  readonly language = 'javascript';
-  readonly supportedExtensions = ['.js', '.jsx', '.mjs', '.cjs'];
-  readonly priority = 1;
+  override readonly language = 'javascript';
+  override readonly supportedExtensions = ['.js', '.jsx', '.mjs', '.cjs'];
+  override readonly priority = 1;
 
   constructor(fileUtils?: IFileUtils) {
     super(new TreeSitterParser('javascript'), fileUtils);
+    this.logger = getLogger('analyzer:javascript');
   }
 
-  async extractDependencies(filePath: string): Promise<IDependency[]> {
+  override async extractDependencies(filePath: string): Promise<IDependency[]> {
     const dependencies: IDependency[] = [];
     
     try {
@@ -52,10 +54,10 @@ export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
     }
   }
 
-  async calculateComplexity(filePath: string): Promise<IComplexityMetrics> {
+  override async calculateComplexity(filePath: string): Promise<IComplexityMetrics> {
     try {
       const content = await this.fileUtils.readFile(filePath);
-      const tree = await this.parser.parse(content);
+      const tree = await this.parser.parse(content) as Parser.Tree;
 
       let cyclomaticComplexity = 1; // Base complexity
       let cognitiveComplexity = 0;
@@ -94,7 +96,7 @@ export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
     }
   }
 
-  protected async extractExports(ast: unknown, content: string): Promise<Array<{
+  protected override async extractExports(ast: unknown, content: string): Promise<Array<{
     name: string;
     type: 'function' | 'class' | 'variable' | 'constant' | 'type' | 'interface' | 'namespace';
     isDefault: boolean;
@@ -125,7 +127,7 @@ export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
     return exports;
   }
 
-  protected async extractImports(ast: unknown, content: string): Promise<Array<{
+  protected override async extractImports(ast: unknown, content: string): Promise<Array<{
     source: string;
     imported: string[];
     isNamespace: boolean;
@@ -154,7 +156,7 @@ export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
     return imports;
   }
 
-  protected async extractFunctions(ast: unknown, content: string): Promise<Array<{
+  protected override async extractFunctions(ast: unknown, content: string): Promise<Array<{
     name: string;
     parameters: Array<{
       name: string;
@@ -432,13 +434,17 @@ export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
       }
     }
 
-    return {
-      source,
-      imported,
-      isNamespace,
-      alias,
-      location
-    };
+    const result: {
+      source: string;
+      imported: string[];
+      isNamespace: boolean;
+      alias?: string;
+      location: ISourceLocation;
+    } = { source, imported, isNamespace, location };
+    
+    if (alias) result.alias = alias;
+    
+    return result;
   }
 
   private extractFunctionInfo(node: Parser.SyntaxNode, content: string): {
@@ -696,13 +702,14 @@ export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
 
 // TypeScript analyzer extends JavaScript analyzer
 export class TypeScriptAnalyzer extends JavaScriptAnalyzer {
-  readonly language = 'typescript';
-  readonly supportedExtensions = ['.ts', '.tsx'];
-  readonly priority = 2;
+  override readonly language = 'typescript';
+  override readonly supportedExtensions = ['.ts', '.tsx'];
+  override readonly priority = 2;
 
   constructor(fileUtils?: IFileUtils) {
     super(fileUtils);
     // Replace the parser with TypeScript parser
     (this as any).parser = new TreeSitterParser('typescript');
+    this.logger = getLogger('analyzer:typescript');
   }
 }

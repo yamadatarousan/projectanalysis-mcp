@@ -143,18 +143,24 @@ export class FileUtils implements IFileUtils {
       const name = path.basename(normalizedPath);
       const extension = path.extname(normalizedPath);
 
-      return {
+      const fileInfo: IFileInfo = {
         path: normalizedPath,
         relativePath,
         name,
         extension,
         size: stats.size,
-        language: this.detectLanguage(extension),
         encoding: 'utf-8', // Default assumption
         lastModified: stats.mtime,
         permissions: stats.mode.toString(8),
         isSymlink: stats.isSymbolicLink()
       };
+      
+      const detectedLanguage = this.detectLanguage(extension);
+      if (detectedLanguage) {
+        fileInfo.language = detectedLanguage;
+      }
+      
+      return fileInfo;
     } catch (error) {
       this.logger.error('Failed to get file info', error as Error, {
         filePath: normalizedPath

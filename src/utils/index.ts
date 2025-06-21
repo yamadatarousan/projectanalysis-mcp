@@ -13,7 +13,7 @@ export type {
   IFileSearchOptions, 
   ValidationResult 
 } from './file-utils.js';
-export { FileUtils, SecurityError, createFileUtils } from './file-utils.js';
+export { FileUtils, createFileUtils } from './file-utils.js';
 
 export type { IConfigManager } from './config.js';
 export { ConfigManager, createConfigManager } from './config.js';

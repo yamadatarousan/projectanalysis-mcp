@@ -28,7 +28,7 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
   constructor(parser: IParser, fileUtils?: IFileUtils) {
     this.parser = parser;
     this.fileUtils = fileUtils ?? createFileUtils();
-    this.logger = getLogger(`analyzer:${this.language}`);
+    this.logger = getLogger('analyzer:base');
   }
 
   async analyzeFile(filePath: string): Promise<IFileAnalysis> {
@@ -140,12 +140,12 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
   abstract calculateComplexity(filePath: string): Promise<IComplexityMetrics>;
   
   // Optional methods with default implementations
-  async detectPatterns?(structure: IProjectStructure): Promise<IArchitecturePattern[]> {
+  async detectPatterns?(_structure: IProjectStructure): Promise<IArchitecturePattern[]> {
     return [];
   }
 
   // Protected helper methods
-  protected async extractExports(ast: unknown, content: string): Promise<Array<{
+  protected async extractExports(_ast: unknown, _content: string): Promise<Array<{
     name: string;
     type: 'function' | 'class' | 'variable' | 'constant' | 'type' | 'interface' | 'namespace';
     isDefault: boolean;
@@ -156,7 +156,7 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
     return [];
   }
 
-  protected async extractImports(ast: unknown, content: string): Promise<Array<{
+  protected async extractImports(_ast: unknown, _content: string): Promise<Array<{
     source: string;
     imported: string[];
     isNamespace: boolean;
@@ -167,7 +167,7 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
     return [];
   }
 
-  protected async extractFunctions(ast: unknown, content: string): Promise<Array<{
+  protected async extractFunctions(_ast: unknown, _content: string): Promise<Array<{
     name: string;
     parameters: Array<{
       name: string;
@@ -187,7 +187,7 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
     return [];
   }
 
-  protected async extractClasses(ast: unknown, content: string): Promise<Array<{
+  protected async extractClasses(_ast: unknown, _content: string): Promise<Array<{
     name: string;
     superClass?: string;
     interfaces: string[];
@@ -226,7 +226,7 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
     return [];
   }
 
-  protected async extractVariables(ast: unknown, content: string): Promise<Array<{
+  protected async extractVariables(_ast: unknown, _content: string): Promise<Array<{
     name: string;
     type?: string;
     scope: 'global' | 'module' | 'function' | 'block' | 'class';
@@ -238,7 +238,7 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
     return [];
   }
 
-  protected async extractComments(ast: unknown, content: string): Promise<Array<{
+  protected async extractComments(_ast: unknown, content: string): Promise<Array<{
     content: string;
     type: 'line' | 'block' | 'doc';
     location: ISourceLocation;
@@ -254,6 +254,8 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
+      if (!line) continue;
+      
       const trimmed = line.trim();
 
       // Line comments
@@ -271,9 +273,9 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
         const blockEnd = line.indexOf('*/', blockStart);
         if (blockEnd !== -1) {
           // Single line block comment
-          const content = line.substring(blockStart + 2, blockEnd).trim();
+          const commentContent = line.substring(blockStart + 2, blockEnd).trim();
           comments.push({
-            content,
+            content: commentContent,
             type: trimmed.startsWith('/**') ? 'doc' : 'block',
             location: { line: i + 1, column: blockStart }
           });
@@ -291,7 +293,7 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
 
   protected getFileExtension(filePath: string): string {
     const match = filePath.match(/\.[^.]+$/);
-    return match ? match[0] : '';
+    return match?.[0] ?? '';
   }
 
   protected createEmptyAnalysis(filePath: string): IFileAnalysis {
@@ -353,12 +355,10 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
     endLine?: number,
     endColumn?: number
   ): ISourceLocation {
-    return {
-      line,
-      column,
-      endLine,
-      endColumn
-    };
+    const location: ISourceLocation = { line, column };
+    if (endLine !== undefined) location.endLine = endLine;
+    if (endColumn !== undefined) location.endColumn = endColumn;
+    return location;
   }
 }
 
