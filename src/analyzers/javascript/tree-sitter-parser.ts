@@ -30,11 +30,19 @@ export class TreeSitterParser implements IParser {
     try {
       const tree = this.parser.parse(content);
       
-      if (tree.rootNode.hasError()) {
-        this.logger.warn('Parse tree contains errors', {
-          language: this.language,
-          contentLength: content.length
-        });
+      // Check for parse errors if the method exists
+      try {
+        if (tree && tree.rootNode && 'hasError' in tree.rootNode) {
+          const hasError = (tree.rootNode as any).hasError;
+          if (typeof hasError === 'function' && hasError()) {
+            this.logger.warn('Parse tree contains errors', {
+              language: this.language,
+              contentLength: content.length
+            });
+          }
+        }
+      } catch (err) {
+        // Ignore error checking failures
       }
 
       return tree;
@@ -65,7 +73,7 @@ export class TreeSitterParser implements IParser {
 }
 
 export class ParsingError extends Error {
-  constructor(message: string, public readonly cause?: Error) {
+  constructor(message: string, public override readonly cause?: Error) {
     super(message);
     this.name = 'ParsingError';
   }

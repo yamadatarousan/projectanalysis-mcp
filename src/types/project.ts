@@ -2,6 +2,46 @@
  * Project-related types for the analysis system
  */
 
+// Forward declarations to avoid circular dependencies
+export interface IComplexityMetrics {
+  readonly cyclomatic: number;
+  readonly cognitive: number;
+  readonly halstead: {
+    readonly vocabulary: number;
+    readonly length: number;
+    readonly difficulty: number;
+    readonly volume: number;
+    readonly effort: number;
+    readonly bugs: number;
+    readonly time: number;
+  };
+}
+
+export interface IProjectStructure {
+  readonly path: string;
+  readonly name: string;
+  readonly type: 'file' | 'directory';
+  readonly children?: IProjectStructure[];
+  readonly size?: number;
+  readonly extension?: string;
+  readonly language?: string;
+  readonly lastModified: Date;
+}
+
+export interface IArchitecturePattern {
+  readonly name: string;
+  readonly type: 'architectural' | 'design' | 'creational' | 'structural' | 'behavioral';
+  readonly confidence: number;
+  readonly description: string;
+  readonly files: string[];
+  readonly evidence: Array<{
+    readonly type: string;
+    readonly location: string;
+    readonly description: string;
+    readonly confidence: number;
+  }>;
+}
+
 export interface IProject {
   readonly path: string;
   readonly name: string;
@@ -20,13 +60,13 @@ export type ProjectType =
   | 'unknown';
 
 export interface IProjectConfiguration {
-  readonly packageManager?: string;
-  readonly buildTool?: string;
-  readonly configFiles: string[];
-  readonly entryPoints: string[];
-  readonly sourceDirectories: string[];
-  readonly testDirectories: string[];
-  readonly buildDirectories: string[];
+  packageManager?: string;
+  buildTool?: string;
+  configFiles: string[];
+  entryPoints: string[];
+  sourceDirectories: string[];
+  testDirectories: string[];
+  buildDirectories: string[];
 }
 
 export interface IProjectMetadata {
@@ -145,10 +185,10 @@ export interface IImport {
 }
 
 export interface ISourceLocation {
-  readonly line: number;
-  readonly column: number;
-  readonly endLine?: number;
-  readonly endColumn?: number;
+  line: number;
+  column: number;
+  endLine?: number;
+  endColumn?: number;
 }
 
 export interface IFunctionInfo {

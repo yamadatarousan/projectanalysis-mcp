@@ -290,18 +290,18 @@ export class ConfigManager implements IConfigManager {
     let hasEnvConfig = false;
 
     // Check for environment variables
-    if (process.env.PA_MAX_FILE_SIZE) {
-      envConfig.global = {
+    if (process.env['PA_MAX_FILE_SIZE']) {
+      (envConfig as any).global = {
         ...envConfig.global,
-        maxFileSize: parseInt(process.env.PA_MAX_FILE_SIZE, 10)
+        maxFileSize: parseInt(process.env['PA_MAX_FILE_SIZE'], 10)
       };
       hasEnvConfig = true;
     }
 
-    if (process.env.PA_CACHE_ENABLED) {
-      envConfig.cache = {
+    if (process.env['PA_CACHE_ENABLED']) {
+      (envConfig as any).cache = {
         ...envConfig.cache,
-        enabled: process.env.PA_CACHE_ENABLED === 'true'
+        enabled: process.env['PA_CACHE_ENABLED'] === 'true'
       };
       hasEnvConfig = true;
     }

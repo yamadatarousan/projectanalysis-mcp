@@ -5,7 +5,7 @@
 import type { JSONSchema7 } from 'json-schema';
 import { getLogger, type ILogger } from '@/utils/logger.js';
 import { createProjectScanner, type IProjectScanner } from '@/core/project-scanner.js';
-import { createAnalyzerRegistry, type IAnalyzerRegistry } from '@/analyzers/index.js';
+// import { createAnalyzerRegistry, type IAnalyzerRegistry } from '@/analyzers/index.js';
 import { createCacheManager, type ICacheManager } from '@/utils/cache.js';
 import type {
   IMCPTool,
@@ -65,17 +65,17 @@ export class AnalyzeProjectTool implements IMCPTool {
 
   private readonly logger: ILogger;
   private readonly projectScanner: IProjectScanner;
-  private readonly analyzerRegistry: IAnalyzerRegistry;
+  // private readonly analyzerRegistry: IAnalyzerRegistry;
   private readonly cacheManager: ICacheManager;
 
   constructor(
     projectScanner?: IProjectScanner,
-    analyzerRegistry?: IAnalyzerRegistry,
+    // analyzerRegistry?: IAnalyzerRegistry,
     cacheManager?: ICacheManager
   ) {
     this.logger = getLogger('analyze-project-tool');
     this.projectScanner = projectScanner ?? createProjectScanner();
-    this.analyzerRegistry = analyzerRegistry ?? createAnalyzerRegistry();
+    // this.analyzerRegistry = analyzerRegistry ?? createAnalyzerRegistry();
     this.cacheManager = cacheManager ?? createCacheManager();
   }
 
@@ -156,30 +156,43 @@ export class AnalyzeProjectTool implements IMCPTool {
 
     const p = params as Record<string, unknown>;
 
-    if (!p.projectPath || typeof p.projectPath !== 'string') {
+    if (!p['projectPath'] || typeof p['projectPath'] !== 'string') {
       throw new Error('projectPath is required and must be a string');
     }
 
-    if (p.depth !== undefined && (typeof p.depth !== 'number' || p.depth < 1 || p.depth > 20)) {
+    if (p['depth'] !== undefined && (typeof p['depth'] !== 'number' || p['depth'] < 1 || p['depth'] > 20)) {
       throw new Error('depth must be a number between 1 and 20');
     }
 
-    if (p.includePatterns !== undefined && !Array.isArray(p.includePatterns)) {
+    if (p['includePatterns'] !== undefined && !Array.isArray(p['includePatterns'])) {
       throw new Error('includePatterns must be an array of strings');
     }
 
-    if (p.excludePatterns !== undefined && !Array.isArray(p.excludePatterns)) {
+    if (p['excludePatterns'] !== undefined && !Array.isArray(p['excludePatterns'])) {
       throw new Error('excludePatterns must be an array of strings');
     }
 
-    return {
-      projectPath: p.projectPath,
-      depth: p.depth as number | undefined,
-      includePatterns: p.includePatterns as string[] | undefined,
-      excludePatterns: p.excludePatterns as string[] | undefined,
-      calculateMetrics: p.calculateMetrics as boolean | undefined,
-      detectPatterns: p.detectPatterns as boolean | undefined
+    const validatedParams: IAnalyzeProjectParams = {
+      projectPath: p['projectPath'] as string
     };
+    
+    if (p['depth'] !== undefined) {
+      validatedParams.depth = p['depth'] as number;
+    }
+    if (p['includePatterns'] !== undefined) {
+      validatedParams.includePatterns = p['includePatterns'] as string[];
+    }
+    if (p['excludePatterns'] !== undefined) {
+      validatedParams.excludePatterns = p['excludePatterns'] as string[];
+    }
+    if (p['calculateMetrics'] !== undefined) {
+      validatedParams.calculateMetrics = p['calculateMetrics'] as boolean;
+    }
+    if (p['detectPatterns'] !== undefined) {
+      validatedParams.detectPatterns = p['detectPatterns'] as boolean;
+    }
+    
+    return validatedParams;
   }
 
   private generateCacheKey(params: IAnalyzeProjectParams): string {

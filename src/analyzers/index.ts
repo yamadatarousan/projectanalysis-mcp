@@ -3,7 +3,7 @@
  */
 
 import { getLogger, type ILogger } from '@/utils/logger.js';
-import { BaseLanguageAnalyzer } from './base/analyzer-base.js';
+// import { BaseLanguageAnalyzer } from './base/analyzer-base.js';
 import { JavaScriptAnalyzer, TypeScriptAnalyzer } from './javascript/javascript-analyzer.js';
 import type { ILanguageAnalyzer } from '@/types/project.js';
 
@@ -89,7 +89,7 @@ export function createAnalyzerRegistry(): IAnalyzerRegistry {
 }
 
 // Re-export analyzer classes
-export { BaseLanguageAnalyzer } from './base/analyzer-base.js';
+// export { BaseLanguageAnalyzer } from './base/analyzer-base.js';
 export { JavaScriptAnalyzer, TypeScriptAnalyzer } from './javascript/javascript-analyzer.js';
 export { TreeSitterParser } from './javascript/tree-sitter-parser.js';
 

@@ -5,8 +5,6 @@
 import { getLogger, type ILogger } from './logger.js';
 
 export abstract class BaseError extends Error {
-  abstract readonly code: string;
-  abstract readonly statusCode: number;
   readonly timestamp: Date;
   readonly details?: unknown;
 
@@ -21,6 +19,9 @@ export abstract class BaseError extends Error {
       Error.captureStackTrace(this, this.constructor);
     }
   }
+  
+  abstract get code(): string;
+  abstract get statusCode(): number;
 
   toJSON(): Record<string, unknown> {
     return {
@@ -37,8 +38,8 @@ export abstract class BaseError extends Error {
 
 // Validation Errors
 export class ValidationError extends BaseError {
-  readonly code = 'VALIDATION_ERROR';
-  readonly statusCode = 400;
+  get code(): string { return 'VALIDATION_ERROR'; }
+  get statusCode(): number { return 400; }
 
   constructor(message: string, field?: string, value?: unknown) {
     super(message, { field, value });
@@ -46,8 +47,8 @@ export class ValidationError extends BaseError {
 }
 
 export class ConfigurationError extends BaseError {
-  readonly code = 'CONFIGURATION_ERROR';
-  readonly statusCode = 500;
+  get code(): string { return 'CONFIGURATION_ERROR'; }
+  get statusCode(): number { return 500; }
 
   constructor(message: string, configPath?: string) {
     super(message, { configPath });
@@ -56,8 +57,8 @@ export class ConfigurationError extends BaseError {
 
 // File System Errors
 export class FileSystemError extends BaseError {
-  readonly code = 'FILESYSTEM_ERROR';
-  readonly statusCode = 500;
+  get code(): string { return 'FILESYSTEM_ERROR'; }
+  get statusCode(): number { return 500; }
 
   constructor(message: string, filePath?: string, operation?: string) {
     super(message, { filePath, operation });
@@ -65,8 +66,8 @@ export class FileSystemError extends BaseError {
 }
 
 export class FileNotFoundError extends FileSystemError {
-  readonly code = 'FILE_NOT_FOUND';
-  readonly statusCode = 404;
+  override get code(): string { return 'FILE_NOT_FOUND'; }
+  override get statusCode(): number { return 404; }
 
   constructor(filePath: string) {
     super(`File not found: ${filePath}`, filePath, 'read');
@@ -74,8 +75,8 @@ export class FileNotFoundError extends FileSystemError {
 }
 
 export class DirectoryNotFoundError extends FileSystemError {
-  readonly code = 'DIRECTORY_NOT_FOUND';
-  readonly statusCode = 404;
+  override get code(): string { return 'DIRECTORY_NOT_FOUND'; }
+  override get statusCode(): number { return 404; }
 
   constructor(dirPath: string) {
     super(`Directory not found: ${dirPath}`, dirPath, 'access');
@@ -84,8 +85,8 @@ export class DirectoryNotFoundError extends FileSystemError {
 
 // Security Errors
 export class SecurityError extends BaseError {
-  readonly code = 'SECURITY_ERROR';
-  readonly statusCode = 403;
+  get code(): string { return 'SECURITY_ERROR'; }
+  get statusCode(): number { return 403; }
 
   constructor(message: string, violationType?: string) {
     super(message, { violationType });
@@ -93,8 +94,8 @@ export class SecurityError extends BaseError {
 }
 
 export class PathTraversalError extends SecurityError {
-  readonly code = 'PATH_TRAVERSAL';
-  readonly statusCode = 403;
+  override get code(): string { return 'PATH_TRAVERSAL'; }
+  override get statusCode(): number { return 403; }
 
   constructor(path: string) {
     super(`Path traversal detected: ${path}`, 'path_traversal');
@@ -102,8 +103,8 @@ export class PathTraversalError extends SecurityError {
 }
 
 export class AccessDeniedError extends SecurityError {
-  readonly code = 'ACCESS_DENIED';
-  readonly statusCode = 403;
+  override get code(): string { return 'ACCESS_DENIED'; }
+  override get statusCode(): number { return 403; }
 
   constructor(resource: string, operation?: string) {
     super(`Access denied to ${resource}${operation ? ` for operation: ${operation}` : ''}`, 'access_denied');
@@ -112,17 +113,17 @@ export class AccessDeniedError extends SecurityError {
 
 // Analysis Errors
 export class AnalysisError extends BaseError {
-  readonly code = 'ANALYSIS_ERROR';
-  readonly statusCode = 500;
+  get code(): string { return 'ANALYSIS_ERROR'; }
+  get statusCode(): number { return 500; }
 
-  constructor(message: string, analysisType?: string, details?: unknown) {
-    super(message, { analysisType, ...details });
+  constructor(message: string, details?: unknown) {
+    super(message, details);
   }
 }
 
 export class ParsingError extends AnalysisError {
-  readonly code = 'PARSING_ERROR';
-  readonly statusCode = 422;
+  override get code(): string { return 'PARSING_ERROR'; }
+  override get statusCode(): number { return 422; }
 
   constructor(filePath: string, language?: string, cause?: Error) {
     super(`Failed to parse file: ${filePath}${language ? ` (${language})` : ''}`, {
@@ -134,8 +135,8 @@ export class ParsingError extends AnalysisError {
 }
 
 export class UnsupportedLanguageError extends AnalysisError {
-  readonly code = 'UNSUPPORTED_LANGUAGE';
-  readonly statusCode = 422;
+  override get code(): string { return 'UNSUPPORTED_LANGUAGE'; }
+  override get statusCode(): number { return 422; }
 
   constructor(language: string, filePath?: string) {
     super(`Unsupported language: ${language}${filePath ? ` in file: ${filePath}` : ''}`, {
@@ -146,8 +147,8 @@ export class UnsupportedLanguageError extends AnalysisError {
 }
 
 export class ComplexityCalculationError extends AnalysisError {
-  readonly code = 'COMPLEXITY_CALCULATION_ERROR';
-  readonly statusCode = 500;
+  override get code(): string { return 'COMPLEXITY_CALCULATION_ERROR'; }
+  override get statusCode(): number { return 500; }
 
   constructor(filePath: string, cause?: Error) {
     super(`Failed to calculate complexity for: ${filePath}`, {
@@ -159,8 +160,8 @@ export class ComplexityCalculationError extends AnalysisError {
 
 // Resource Errors
 export class ResourceError extends BaseError {
-  readonly code = 'RESOURCE_ERROR';
-  readonly statusCode = 500;
+  get code(): string { return 'RESOURCE_ERROR'; }
+  get statusCode(): number { return 500; }
 
   constructor(message: string, resourceType?: string) {
     super(message, { resourceType });
@@ -168,8 +169,8 @@ export class ResourceError extends BaseError {
 }
 
 export class ResourceLimitError extends ResourceError {
-  override readonly code = 'RESOURCE_LIMIT_EXCEEDED';
-  override readonly statusCode = 429;
+  override get code(): string { return 'RESOURCE_LIMIT_EXCEEDED'; }
+  override get statusCode(): number { return 429; }
 
   constructor(limitType: string, limit: number, actual: number) {
     super(`${limitType} limit exceeded: ${actual} > ${limit}`);
@@ -178,8 +179,8 @@ export class ResourceLimitError extends ResourceError {
 }
 
 export class TimeoutError extends ResourceError {
-  override readonly code = 'TIMEOUT';
-  override readonly statusCode = 408;
+  override get code(): string { return 'TIMEOUT'; }
+  override get statusCode(): number { return 408; }
 
   constructor(operation: string, timeout: number) {
     super(`Operation timed out: ${operation} (${timeout}ms)`);
@@ -188,8 +189,8 @@ export class TimeoutError extends ResourceError {
 }
 
 export class MemoryError extends ResourceError {
-  override readonly code = 'MEMORY_ERROR';
-  override readonly statusCode = 507;
+  override get code(): string { return 'MEMORY_ERROR'; }
+  override get statusCode(): number { return 507; }
 
   constructor(operation: string, memoryUsed: number, memoryLimit: number) {
     super(`Memory limit exceeded during ${operation}: ${memoryUsed}MB > ${memoryLimit}MB`);
@@ -199,8 +200,8 @@ export class MemoryError extends ResourceError {
 
 // Cache Errors
 export class CacheError extends BaseError {
-  readonly code = 'CACHE_ERROR';
-  readonly statusCode = 500;
+  get code(): string { return 'CACHE_ERROR'; }
+  get statusCode(): number { return 500; }
 
   constructor(message: string, operation?: string, key?: string) {
     super(message, { operation, key });
@@ -209,8 +210,8 @@ export class CacheError extends BaseError {
 
 // MCP Errors
 export class MCPError extends BaseError {
-  readonly code = 'MCP_ERROR';
-  readonly statusCode = 500;
+  get code(): string { return 'MCP_ERROR'; }
+  get statusCode(): number { return 500; }
 
   constructor(message: string, method?: string, toolName?: string) {
     super(message, { method, toolName });
@@ -218,8 +219,8 @@ export class MCPError extends BaseError {
 }
 
 export class ToolNotFoundError extends MCPError {
-  override readonly code = 'TOOL_NOT_FOUND';
-  override readonly statusCode = 404;
+  override get code(): string { return 'TOOL_NOT_FOUND'; }
+  override get statusCode(): number { return 404; }
 
   constructor(toolName: string) {
     super(`Tool not found: ${toolName}`, undefined, toolName);
@@ -227,13 +228,14 @@ export class ToolNotFoundError extends MCPError {
 }
 
 export class ToolExecutionError extends MCPError {
-  override readonly code = 'TOOL_EXECUTION_ERROR';
-  override readonly statusCode = 500;
+  override get code(): string { return 'TOOL_EXECUTION_ERROR'; }
+  override get statusCode(): number { return 500; }
 
   constructor(toolName: string, cause?: Error) {
     super(`Tool execution failed: ${toolName}`, undefined, toolName);
     if (cause) {
-      (this as any).details = { ...this.details, cause: cause.message, stack: cause.stack };
+      const currentDetails = this.details || {};
+      (this as any).details = { ...currentDetails, cause: cause.message, stack: cause.stack };
     }
   }
 }
@@ -293,7 +295,7 @@ export class ErrorHandler {
     }
 
     // Generic analysis error for unknown errors
-    return new AnalysisError(`Unexpected error: ${message}`, 'unknown', details);
+    return new AnalysisError(`Unexpected error: ${message}`, details);
   }
 
   private extractFilePathFromError(error: Error): string | undefined {

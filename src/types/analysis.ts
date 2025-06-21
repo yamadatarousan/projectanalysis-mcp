@@ -2,16 +2,10 @@
  * Analysis result types for project analysis MCP server
  */
 
-export interface IProjectStructure {
-  readonly path: string;
-  readonly name: string;
-  readonly type: 'file' | 'directory';
-  readonly children?: IProjectStructure[];
-  readonly size?: number;
-  readonly extension?: string;
-  readonly language?: string;
-  readonly lastModified: Date;
-}
+import type { IProjectStructure, IComplexityMetrics, IArchitecturePattern } from './project.js';
+
+// Re-export for convenience
+export type { IProjectStructure, IComplexityMetrics, IArchitecturePattern };
 
 export interface ITechStack {
   readonly languages: ILanguageInfo[];
@@ -106,11 +100,7 @@ export interface IFileMetrics {
   readonly functions: IFunctionMetrics[];
 }
 
-export interface IComplexityMetrics {
-  readonly cyclomatic: number;
-  readonly cognitive: number;
-  readonly halstead: IHalsteadMetrics;
-}
+// IComplexityMetrics is imported from project.ts
 
 export interface IHalsteadMetrics {
   readonly vocabulary: number;
@@ -160,14 +150,7 @@ export interface IHotspot {
   readonly changeFrequency: number;
 }
 
-export interface IArchitecturePattern {
-  readonly name: string;
-  readonly type: 'architectural' | 'design' | 'creational' | 'structural' | 'behavioral';
-  readonly confidence: number;
-  readonly description: string;
-  readonly files: string[];
-  readonly evidence: IPatternEvidence[];
-}
+// IArchitecturePattern is imported from project.ts
 
 export interface IPatternEvidence {
   readonly type: string;

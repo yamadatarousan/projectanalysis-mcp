@@ -21,14 +21,18 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
   abstract readonly supportedExtensions: string[];
   readonly priority: number = 0;
 
-  protected readonly logger: ILogger;
+  private readonly _logger: ILogger;
   protected readonly fileUtils: IFileUtils;
   protected readonly parser: IParser;
 
   constructor(parser: IParser, fileUtils?: IFileUtils) {
     this.parser = parser;
     this.fileUtils = fileUtils ?? createFileUtils();
-    this.logger = getLogger('analyzer:base');
+    this._logger = getLogger('analyzer:base');
+  }
+  
+  protected get logger(): ILogger {
+    return this._logger;
   }
 
   async analyzeFile(filePath: string): Promise<IFileAnalysis> {
@@ -115,7 +119,9 @@ export abstract class BaseLanguageAnalyzer implements ILanguageAnalyzer {
           results.push(result.value);
         } else {
           const filePath = chunk[index];
-          errors.push({ filePath, error: result.reason });
+          if (filePath) {
+            errors.push({ filePath, error: result.reason });
+          }
           this.logger.warn('File analysis failed in batch', { 
             filePath, 
             error: result.reason 

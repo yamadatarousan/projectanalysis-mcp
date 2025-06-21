@@ -156,11 +156,15 @@ export class FileUtils implements IFileUtils {
       };
       
       const detectedLanguage = this.detectLanguage(extension);
-      if (detectedLanguage) {
-        fileInfo.language = detectedLanguage;
-      }
       
-      return fileInfo;
+      if (detectedLanguage) {
+        return {
+          ...fileInfo,
+          language: detectedLanguage
+        };
+      } else {
+        return fileInfo;
+      }
     } catch (error) {
       this.logger.error('Failed to get file info', error as Error, {
         filePath: normalizedPath

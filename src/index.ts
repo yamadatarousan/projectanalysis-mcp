@@ -7,7 +7,7 @@ import { createMCPServer } from '@/mcp/server.js';
 
 async function main(): Promise<void> {
   // Set log level from environment variable
-  const logLevel = process.env.LOG_LEVEL?.toUpperCase();
+  const logLevel = process.env['LOG_LEVEL']?.toUpperCase();
   switch (logLevel) {
     case 'ERROR':
       setLogLevel(LogLevel.ERROR);

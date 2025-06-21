@@ -47,12 +47,12 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^0.5.0",
+    "@modelcontextprotocol/sdk": "^0.4.0",
     "@typescript-eslint/parser": "^6.0.0",
     "acorn": "^8.10.0",
     "ajv": "^8.12.0",
-    "debug": "^4.3.0",
     "cosmiconfig": "^8.3.0",
+    "debug": "^4.3.0",
     "fast-glob": "^3.3.0",
     "find-up": "^6.3.0",
     "ignore": "^5.2.0",
@@ -62,10 +62,10 @@
     "node-cache": "^5.1.2",
     "p-limit": "^4.0.0",
     "tree-sitter": "^0.21.1",
-    "tree-sitter-javascript": "^0.21.0",
-    "tree-sitter-typescript": "^0.20.0",
-    "tree-sitter-python": "^0.20.0",
     "tree-sitter-java": "^0.20.0",
+    "tree-sitter-javascript": "^0.21.0",
+    "tree-sitter-python": "^0.20.0",
+    "tree-sitter-typescript": "^0.20.0",
     "winston": "^3.10.0"
   },
   "devDependencies": {
@@ -87,7 +87,9 @@
   "jest": {
     "preset": "ts-jest/presets/default-esm",
     "testEnvironment": "node",
-    "extensionsToTreatAsEsm": [".ts"],
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
     "moduleNameMapping": {
       "^@/(.*)$": "<rootDir>/src/$1"
     },

@@ -73,6 +73,9 @@ export type {
   ISecurityConfig
 } from './project.js';
 
+// File utilities
+export type { IFileSearchOptions } from '../utils/file-utils.js';
+
 // MCP types
 export type {
   IMCPTool,

@@ -11,10 +11,11 @@ import type {
   ProjectType, 
   IProjectConfiguration,
   IProjectMetadata,
-  ILanguageAnalyzer,
-  IFileAnalysis,
+  // ILanguageAnalyzer,
+  // IFileAnalysis,
   IAnalysisOptions,
-  IGitInfo
+  IGitInfo,
+  IFileSearchOptions
 } from '@/types/index.js';
 
 export interface IProjectScanner {
@@ -28,18 +29,18 @@ export interface IProjectScanner {
 export class ProjectScanner implements IProjectScanner {
   private readonly logger: ILogger;
   private readonly fileUtils: IFileUtils;
-  private readonly analyzers: Map<string, ILanguageAnalyzer>;
+  // private readonly analyzers: Map<string, ILanguageAnalyzer>;
 
   constructor(
     fileUtils?: IFileUtils,
-    analyzers: Map<string, ILanguageAnalyzer> = new Map()
+    // analyzers: Map<string, ILanguageAnalyzer> = new Map()
   ) {
     this.logger = getLogger('project-scanner');
     this.fileUtils = fileUtils ?? createFileUtils();
-    this.analyzers = analyzers;
+    // this.analyzers = analyzers;
   }
 
-  async scanProject(projectPath: string, options: IAnalysisOptions = {}): Promise<IProject> {
+  async scanProject(projectPath: string, _options: IAnalysisOptions = {}): Promise<IProject> {
     this.logger.info('Starting project scan', { projectPath });
     
     const startTime = Date.now();
@@ -222,16 +223,29 @@ export class ProjectScanner implements IProjectScanner {
       // Try to get additional metadata from package.json or similar
       const packageInfo = await this.getPackageInfo(projectPath);
 
-      return {
+      const metadata: IProjectMetadata = {
         size: dirInfo.totalSize,
         fileCount: dirInfo.fileCount,
-        lastModified: dirInfo.lastModified,
-        gitRepository: gitInfo,
-        license: packageInfo?.license,
-        description: packageInfo?.description,
-        version: packageInfo?.version,
-        authors: packageInfo?.authors
+        lastModified: dirInfo.lastModified
       };
+      
+      if (gitInfo) {
+        (metadata as any).gitRepository = gitInfo;
+      }
+      if (packageInfo?.license) {
+        (metadata as any).license = packageInfo.license;
+      }
+      if (packageInfo?.description) {
+        (metadata as any).description = packageInfo.description;
+      }
+      if (packageInfo?.version) {
+        (metadata as any).version = packageInfo.version;
+      }
+      if (packageInfo?.authors) {
+        (metadata as any).authors = packageInfo.authors;
+      }
+      
+      return metadata;
     } catch (error) {
       this.logger.warn('Failed to get project metadata', { projectPath, error });
       
@@ -262,11 +276,18 @@ export class ProjectScanner implements IProjectScanner {
       const children: IProjectStructure[] = [];
       
       try {
-        const files = await this.fileUtils.getAllFiles(currentPath, {
-          includePatterns: options.includePatterns ?? ['*'],
-          excludePatterns: options.excludePatterns,
-          maxDepth: 1
-        });
+        const searchOptions: IFileSearchOptions = options.excludePatterns 
+          ? {
+              includePatterns: options.includePatterns ?? ['*'],
+              maxDepth: 1,
+              excludePatterns: options.excludePatterns
+            }
+          : {
+              includePatterns: options.includePatterns ?? ['*'],
+              maxDepth: 1
+            };
+        
+        const files = await this.fileUtils.getAllFiles(currentPath, searchOptions);
 
         // Process immediate children only
         const immediateChildren = new Set<string>();
@@ -299,15 +320,20 @@ export class ProjectScanner implements IProjectScanner {
     } else {
       const fileInfo = await this.fileUtils.getFileInfo(currentPath);
 
-      return {
+      const structure: IProjectStructure = {
         path: currentPath,
         name,
         type: 'file',
         size: fileInfo.size,
         extension: fileInfo.extension,
-        language: fileInfo.language,
         lastModified: fileInfo.lastModified
       };
+      
+      if (fileInfo.language) {
+        (structure as any).language = fileInfo.language;
+      }
+      
+      return structure;
     }
   }
 
@@ -538,8 +564,8 @@ export class ProjectScanner implements IProjectScanner {
 
 // Factory function
 export function createProjectScanner(
-  fileUtils?: IFileUtils,
-  analyzers?: Map<string, ILanguageAnalyzer>
+  fileUtils?: IFileUtils
+  // analyzers?: Map<string, ILanguageAnalyzer>
 ): IProjectScanner {
-  return new ProjectScanner(fileUtils, analyzers);
+  return new ProjectScanner(fileUtils);
 }

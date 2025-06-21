@@ -3,6 +3,13 @@
  */
 
 import type { JSONSchema7 } from 'json-schema';
+import type {
+  IAnalysisResult,
+  IVisualizationResult,
+  IVisualizationMetadata,
+  IDependencyGraph
+} from './analysis.js';
+import type { IArchitecturePattern } from './project.js';
 
 // MCP Tool interfaces
 export interface IMCPTool {
@@ -49,12 +56,12 @@ export interface IMCPResourceContent {
 
 // Specific tool parameter types
 export interface IAnalyzeProjectParams {
-  readonly projectPath: string;
-  readonly depth?: number;
-  readonly includePatterns?: string[];
-  readonly excludePatterns?: string[];
-  readonly calculateMetrics?: boolean;
-  readonly detectPatterns?: boolean;
+  projectPath: string;
+  depth?: number;
+  includePatterns?: string[];
+  excludePatterns?: string[];
+  calculateMetrics?: boolean;
+  detectPatterns?: boolean;
 }
 
 export interface IGenerateDiagramParams {

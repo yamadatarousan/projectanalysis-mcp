@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(ls:*)",
+      "Bash(node:*)",
+      "Bash(chmod:*)",
+      "Bash(timeout:*)",
+      "Bash(pkill:*)",
+      "Bash(killall:*)",
+      "Bash(open:*)",
+      "Bash(npm show:*)",
+      "Bash(npm install:*)",
+      "Bash(rm:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}

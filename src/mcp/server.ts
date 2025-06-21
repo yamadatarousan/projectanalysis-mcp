@@ -6,12 +6,12 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   CallToolRequestSchema,
-  ListToolsRequestSchema,
-  Tool
+  ListToolsRequestSchema
+  // Tool
 } from '@modelcontextprotocol/sdk/types.js';
 
 import { getLogger, type ILogger } from '@/utils/logger.js';
-import { createConfigManager, type IConfigManager } from '@/utils/config.js';
+// import { createConfigManager, type IConfigManager } from '@/utils/config.js';
 import { createCacheManager, type ICacheManager } from '@/utils/cache.js';
 import { AnalyzeProjectTool, GenerateDiagramTool } from './tools/index.js';
 import type { 
@@ -31,12 +31,12 @@ export class ProjectAnalysisMCPServer implements IMCPServer {
 
   private readonly server: Server;
   private readonly logger: ILogger;
-  private readonly configManager: IConfigManager;
+  // private readonly configManager: IConfigManager;
   private readonly cacheManager: ICacheManager;
 
   constructor() {
     this.logger = getLogger('mcp-server');
-    this.configManager = createConfigManager();
+    // this.configManager = createConfigManager();
     this.cacheManager = createCacheManager();
     
     this.server = new Server(
@@ -159,7 +159,7 @@ export class ProjectAnalysisMCPServer implements IMCPServer {
   private setupServer(): void {
     // List tools handler
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      const tools: Tool[] = Array.from(this.tools.values()).map(tool => ({
+      const tools = Array.from(this.tools.values()).map(tool => ({
         name: tool.name,
         description: tool.description,
         inputSchema: tool.inputSchema
@@ -239,8 +239,8 @@ export class ProjectAnalysisMCPServer implements IMCPServer {
     return result.data;
   }
 
-  private async handleListTools(): Promise<{ tools: Tool[] }> {
-    const tools: Tool[] = Array.from(this.tools.values()).map(tool => ({
+  private async handleListTools(): Promise<{ tools: any[] }> {
+    const tools = Array.from(this.tools.values()).map(tool => ({
       name: tool.name,
       description: tool.description,
       inputSchema: tool.inputSchema

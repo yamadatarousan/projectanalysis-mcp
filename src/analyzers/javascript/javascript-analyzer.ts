@@ -6,14 +6,13 @@ import path from 'path';
 import Parser from 'tree-sitter';
 import { BaseLanguageAnalyzer } from '../base/analyzer-base.js';
 import { TreeSitterParser } from './tree-sitter-parser.js';
-import { getLogger } from '@/utils/logger.js';
+// import { getLogger, type ILogger } from '@/utils/logger.js';
 import type { IFileUtils } from '@/utils/file-utils.js';
 import type {
   IDependency,
   IComplexityMetrics,
   IHalsteadMetrics,
-  ISourceLocation,
-  DependencyType
+  ISourceLocation
 } from '@/types/index.js';
 
 export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
@@ -23,7 +22,6 @@ export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
 
   constructor(fileUtils?: IFileUtils) {
     super(new TreeSitterParser('javascript'), fileUtils);
-    this.logger = getLogger('analyzer:javascript');
   }
 
   override async extractDependencies(filePath: string): Promise<IDependency[]> {
@@ -31,7 +29,7 @@ export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
     
     try {
       const content = await this.fileUtils.readFile(filePath);
-      const tree = await this.parser.parse(content);
+      const tree = await this.parser.parse(content) as Parser.Tree;
       
       this.traverseTree(tree.rootNode, (node) => {
         switch (node.type) {
@@ -701,15 +699,23 @@ export class JavaScriptAnalyzer extends BaseLanguageAnalyzer {
 }
 
 // TypeScript analyzer extends JavaScript analyzer
-export class TypeScriptAnalyzer extends JavaScriptAnalyzer {
+export class TypeScriptAnalyzer extends BaseLanguageAnalyzer {
   override readonly language = 'typescript';
   override readonly supportedExtensions = ['.ts', '.tsx'];
   override readonly priority = 2;
 
   constructor(fileUtils?: IFileUtils) {
-    super(fileUtils);
-    // Replace the parser with TypeScript parser
-    (this as any).parser = new TreeSitterParser('typescript');
-    this.logger = getLogger('analyzer:typescript');
+    super(new TreeSitterParser('typescript'), fileUtils);
+  }
+
+  // Use JavaScript analyzer methods
+  override async extractDependencies(filePath: string): Promise<IDependency[]> {
+    const jsAnalyzer = new JavaScriptAnalyzer(this.fileUtils);
+    return jsAnalyzer.extractDependencies(filePath);
+  }
+
+  override async calculateComplexity(filePath: string): Promise<IComplexityMetrics> {
+    const jsAnalyzer = new JavaScriptAnalyzer(this.fileUtils);
+    return jsAnalyzer.calculateComplexity(filePath);
   }
 }
